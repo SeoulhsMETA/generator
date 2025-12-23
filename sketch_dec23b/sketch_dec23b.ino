@@ -1,47 +1,19 @@
-// 핀 설정
-const int controlPin = 9; // 트랜지스터 조절 (11번 줄)
-const int sensorPin = A0; // 전압 측정 (10번 줄)
-
+//Master
+#include <Wire.h>                       //라이브러리 추가
+#define SLAVE 4
+byte count = 'A';                       // 카운터
 void setup() {
-  Serial.begin(9600); // 시리얼 모니터 속도
-  pinMode(controlPin, OUTPUT);
-  
-  Serial.println("=====================================");
-  Serial.println("   정밀 전압 측정 테스트 시작   ");
-  Serial.println("=====================================");
+  Wire.begin(SLAVE);                    // Wire 라이브러리 초기화 ,슬레이브로 참여하기 위해서는 주소를 지정해야 한다.
+  Wire.onRequest(sendToMaster);         // 마스터의 데이터 전송 요구가 있을 때 처리할 함수 등록
 }
-
-void loop() {
-  // 0부터 255까지 신호를 5단계씩 올려보겠습니다.
-  for (int pwmValue = 0; pwmValue <= 255; pwmValue += 5) {
-    analogWrite(controlPin, pwmValue);
-    
-    // 신호가 안정화될 때까지 기다림
-    delay(50); 
-
-    // --- 평균값 필터링 시작 ---
-    long sum = 0;
-    int samples = 10; // 10번 읽어서 평균을 냄
-    for (int i = 0; i < samples; i++) {
-      sum += analogRead(sensorPin);
-      delay(2);
-    }
-    float averageRaw = (float)sum / samples;
-    // --- 평균값 필터링 끝 ---
-
-    // 전압 계산 (5V 기준)
-    float voltage = averageRaw * (5.0 / 1023.0);
-
-    // 시리얼 모니터 출력
-    Serial.print("제어값(PWM): ");
-    Serial.print(pwmValue);
-    Serial.print("\t | 측정 전압: ");
-    if (voltage < 0.1) Serial.print("0.00"); // 아주 낮은 값은 0으로 표시
-    else Serial.print(voltage, 2); // 소수점 둘째자리까지
-    Serial.println(" V");
+ 
+void loop () {
+}
+ 
+void sendToMaster() {
+  Wire.write(++count);                     // 카운터 값을 증가시키고 마스터로 전송
+  
+  if(count >= 'z'){                     // 대문자'A'부터 소문자 'z'까지 하나씩 증가시키며 전송
+    count = 'A';
   }
-
-  Serial.println("-------------------------------------");
-  Serial.println("한 사이클 완료! 2초 후 다시 시작합니다.");
-  delay(2000); 
 }
