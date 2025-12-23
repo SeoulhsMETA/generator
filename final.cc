@@ -1,4 +1,5 @@
 int ss = -1;  // 변수 초기화 추가
+int d = 0;
 const int electricPinA0 = A0;//정방향 전압
 const int electricPinA1 = A1;//역방향 전압
 const int modebuttonPin = A3;//모드 변경 버튼 핀
@@ -50,7 +51,6 @@ void loop() {
     digitalWrite(9, LOW);
     digitalWrite(10, LOW);//초기화
   }
-  if (mode == 0) {
     int adcValue = analogRead(electricPinA0);   // 0 ~ 1023
     float voltageA0 = adcValue * (Vref / 1023.0);
     Serial.print("ADC 값: ");
@@ -66,7 +66,17 @@ void loop() {
     Serial.print("  |  역방향전압: ");
     Serial.print(voltageA1, 3);  // 소수점 3자리
     Serial.println(" V");
+    
+  if (voltageA0 < 5 || voltageA1 < 5) {
+   delay(0.05 * 100);
+    d += 1;
 
+  } else {
+    d = 0;
+
+  }
+  
+  if (mode == 0) {
     if (voltageA0 >= 5 || voltageA1 >= 5) {
       delay(requiredmaintaintime);
       ss += 1;
@@ -75,77 +85,9 @@ void loop() {
       Serial.print("ss: ");
       Serial.println(ss);  // ss 변수 값 출력 ss는 현재 켜진 led 개수
     }
-
-    if (ss == 1) {
-      digitalWrite(1, HIGH);
-    }
     
-    if (ss == 2) {
-      digitalWrite(2, HIGH);
-    }
-
-    if (ss == 3) {
-      digitalWrite(3, HIGH);
-    }
-
-    if (ss == 4) {
-      digitalWrite(4, HIGH);
-    }
-
-    if (ss == 5) {
-      digitalWrite(5, HIGH);
-    }
-
-    if (ss == 6) {
-      digitalWrite(6, HIGH);
-    }
-    if (ss == 7) {
-      digitalWrite(7, HIGH);
-    }
-    if (ss == 8) {
-      digitalWrite(8, HIGH);
-    }
-    if (ss == 9) {
-      digitalWrite(9, HIGH);
-    }
-    if (ss == 10) {
-      digitalWrite(10, HIGH);
-    }
-  }
-
-
-
-
-
-
-
-
-
-  else (mode == 1) {
-    int adcValue = analogRead(analogPin);   // 0 ~ 1023
-    float voltageA0= adcValue * (Vref / 1023.0);
-    Serial.print("ADC 값: ");
-    Serial.print(adcValue);                                //정방향 전류흐름                            
-    Serial.print("  |  전압: ");
-    Serial.print(voltage, 3);  // 소수점 3자리
-    Serial.println(" V");
-
-
-    int adcValue = analogRead(electricPinA1);   // 0 ~ 1023
-    float voltageA1 = adcValue * (Vref / 1023.0);
-    Serial.print("ADC 값: ");
-    Serial.print(adcValue);                                //역방향 전류흐름  +,- 전선 반대로꼽기
-    Serial.print("  |  역방향전압: ");
-    Serial.print(voltageA1, 3);  // 소수점 3자리
-    Serial.println(" V");
-
-
-
-
-
-
-
-    if (voltageA0 >= 5 || voltageA1 >= 5) {
+      if (mode == 1) {
+      if (voltageA0 >= 5 || voltageA1 >= 5) {
       delay(requiredmaintaintime);
       ss += 1;
       Serial.print("Pin 0 Value: ");
@@ -153,14 +95,18 @@ void loop() {
       Serial.print("ss: ");
       Serial.println(ss);  // ss 변수 값 출력
     }
-    else  {
+
+  }
+    else if ((voltageA0 < 5 || voltageA1 < 5) && d == 10) {  {
       delay(requiredmaintaintime);
       ss -= 1;
       Serial.print("Pin 0 Value: ");
       Serial.println(analogRead(0));  // 0번 핀의 아날로그 값 출력
       Serial.print("ss: ");
       Serial.println(ss);  // ss 변수 값 출력
+      
     }
+
     if (ss >= 1) {
       digitalWrite(1, HIGH);
     }
@@ -197,6 +143,25 @@ void loop() {
       digitalWrite(10, HIGH);
     }
   }
+  }
   
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
