@@ -1,5 +1,5 @@
-int ss = -1;  // 변수 초기화 추가
-int d = 0;
+int ss;  // 변수 초기화 추가
+int d = -1;
 const int electricPinA0 = A0;//정방향 전압
 const int electricPinA1 = A1;//역방향 전압
 const int modebuttonPin = A3;//모드 변경 버튼 핀
@@ -30,14 +30,10 @@ void setup() {
 
 void loop() {
   int buttonState = digitalRead(modebuttonPin);
-  if (lastButtonState == HIGH && buttonState == LOW) { // 눌리는 순간
-    mode = 1 - mode;   // 0이면 1, 1이면 0 으로 바뀜
-    Serial.print("mode = ");
-    Serial.println(mode);
-    delay(50);         // 디바운스
-  }
-  lastButtonState = buttonState;//모드변경
-  
+  Serial.print("Mode Button State: ");
+  Serial.println(buttonState);
+  delay(50); // 디바운스 딜레이 추가
+
   if (digitalRead(0) == LOW) {
     ss = 0;
     digitalWrite(1, LOW);
@@ -51,24 +47,24 @@ void loop() {
     digitalWrite(9, LOW);
     digitalWrite(10, LOW);//초기화
   }
-    int adcValue = analogRead(electricPinA0);   // 0 ~ 1023
-    float voltageA0 = adcValue * (Vref / 1023.0);
+    int adcValueA0 = analogRead(electricPinA0);   // 0 ~ 1023
+    float voltageA0 = adcValueA0 * (Vref / 1023.0);
     Serial.print("ADC 값: ");
-    Serial.print(adcValue);                                 //정방향 전류흐름
+    Serial.print(adcValueA0);                                 //정방향 전류흐름
     Serial.print("  |  정방향전압: ");
     Serial.print(voltageA0, 3);  // 소수점 3자리
     Serial.println("V");
 
-    int adcValue = analogRead(electricPinA1);   // 0 ~ 1023
-    float voltageA1 = adcValue * (Vref / 1023.0);
+    int adcValueA1 = analogRead(electricPinA1);   // 0 ~ 1023
+    float voltageA1 = adcValueA1 * (Vref / 1023.0);
     Serial.print("ADC 값: ");
-    Serial.print(adcValue);                                //역방향 전류흐름  +,- 전선 반대로꼽기
+    Serial.print(adcValueA1);                                //역방향 전류흐름  +,- 전선 반대로꼽기
     Serial.print("  |  역방향전압: ");
     Serial.print(voltageA1, 3);  // 소수점 3자리
     Serial.println(" V");
     
   if (voltageA0 < 5 || voltageA1 < 5) {
-   delay(0.05 * 100);
+   delay(requiredmaintaintime);
     d += 1;
 
   } else {
@@ -76,7 +72,7 @@ void loop() {
 
   }
   
-  if (mode == 0) {
+  if (buttonState == HIGH) {
     if (voltageA0 >= 5 || voltageA1 >= 5) {
       delay(requiredmaintaintime);
       ss += 1;
@@ -86,7 +82,7 @@ void loop() {
       Serial.println(ss);  // ss 변수 값 출력 ss는 현재 켜진 led 개수
     }
     
-      if (mode == 1) {
+      if (buttonState == LOW) {
       if (voltageA0 >= 5 || voltageA1 >= 5) {
       delay(requiredmaintaintime);
       ss += 1;
@@ -108,7 +104,7 @@ void loop() {
     }
 
     if (ss >= 1) {
-      digitalWrite(1, HIGH);
+      digitalWrite(11, HIGH);
     }
 
     if (ss >= 2) {
@@ -144,6 +140,7 @@ void loop() {
     }
   }
   }
+}
   
 
 
